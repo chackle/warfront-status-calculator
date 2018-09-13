@@ -1,14 +1,23 @@
 import Foundation
 
-/****************** CHANGE THESE CONSTANTS FOR TESTING *******************/
+enum Region {
+  case eu
+  case us
+}
 
-let dayOfTheYear = 250 // The current day of the year 0 - 365 (366 in a leap year)
+/****************** CHANGE THESE VARIABLES FOR TESTING *******************/
 
-let cycleStartDayOfTheYear = 248 // When the cycle started. 248 for EU, 247 US
+let region = Region.eu
+let calendar = Calendar.current
+let date = Date()
 
-let serverHourOfTheDay = 15 // The current hour on the realm
+let cycleStartDayOfTheYear = region == .eu ? 248 : 247 // When the cycle started. 248 for EU, 247 US
 
-let serverMinuteOfTheHour = 30 // The current minutes on the realm
+let dayOfTheYear = calendar.ordinality(of: .day, in: .year, for: date) ?? 0 // The current day of the year 0 - 365 (366 in a leap year)
+
+let serverHourOfTheDay = calendar.ordinality(of: .hour, in: .day, for: date) ?? 0 // The current hour on the realm
+
+let serverMinuteOfTheHour = calendar.ordinality(of: .minute, in: .hour, for: date) ?? 0 // The current minutes on the realm
 
 /*************************************************************************/
 
