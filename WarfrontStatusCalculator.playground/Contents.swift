@@ -114,7 +114,7 @@ enum WarfrontStatus: CustomStringConvertible {
   }
 }
 
-func jsonObject(forFaction faction: Faction, andFactionCycleDay factionCycleDay: Float) -> [String:Any] {
+func jsonObject(forFaction faction: Faction, andFactionCycleDay factionCycleDay: Float) -> [String:Any?] {
   let warfrontStatus = faction.warfrontStatus(forFactionCycleDay: factionCycleDay)
   var warfrontStatusData = [
     "type": warfrontStatus.description.lowercased(),
