@@ -119,16 +119,17 @@ func jsonObject(forFaction faction: Faction, andFactionCycleDay factionCycleDay:
     "faction": faction.description.lowercased()
   ] as [String:Any]
   let warfrontStatus = faction.warfrontStatus(forFactionCycleDay: factionCycleDay)
-  var warfrontData = [
-    "type": warfrontStatus.description.lowercased()
-  ] as [String:Any]
+  var warfrontStatusData = [
+    "type": warfrontStatus.description.lowercased(),
+    "phase": nil
+  ] as [String:Any?]
   if let phase = warfrontStatus.phase {
-    warfrontData["phase"] = [
+    warfrontStatusData["phase"] = [
       "type": phase.description.lowercased(),
       "progress": phase.currentProgress
     ]
   }
-  factionData["warfront_status"] = warfrontData
+  factionData["warfront_status"] = warfrontStatusData
   return factionData
 }
 
