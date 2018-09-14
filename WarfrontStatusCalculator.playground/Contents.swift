@@ -114,38 +114,40 @@ enum WarfrontStatus: CustomStringConvertible {
   }
 }
 
+func jsonObject(forFaction faction: Faction, andFactionCycleDay factionCycleDay: Float) -> [String:Any] {
+  var factionData = [
+    "faction": faction.description.lowercased()
+  ] as [String:Any]
+  let warfrontStatus = faction.warfrontStatus(forFactionCycleDay: factionCycleDay)
+  var warfrontData = [
+    "type": warfrontStatus.description.lowercased()
+  ] as [String:Any]
+  if let phase = warfrontStatus.phase {
+    warfrontData["phase"] = [
+      "type": phase.description.lowercased(),
+      "progress": phase.currentProgress
+    ]
+  }
+  factionData["warfront_status"] = warfrontData
+  return factionData
+}
+
 // Amount of time before the cycle is passed over to the opposite faction
 let factionHandOverDuration = WarfrontStatus.duration + WarfrontStatus.duration
 
 let dayOfTheYearDifference = dayOfTheYear - cycleStartDayOfTheYear
 
-let factionCycleDay = Float(dayOfTheYearDifference % Faction.cycleDuration)
-let currentDay = (Float(serverHourOfTheDay) + Float(serverMinuteOfTheHour / 60)) / 24
-
-let allianceWarfrontStatus = Faction.alliance.warfrontStatus(forFactionCycleDay: factionCycleDay + currentDay)
-let hordeWarfrontStatus = Faction.horde.warfrontStatus(forFactionCycleDay: factionCycleDay + currentDay)
-
-print(Faction.alliance)
-print("Warfront Status: \(allianceWarfrontStatus)")
-if let phase = allianceWarfrontStatus.phase {
-  var phaseString = "Phase: \(phase.description)"
-  if let progress = phase.currentProgress {
-    phaseString = "\(phaseString) (\(round(progress * 10000) / 100)%)"
+let factionCycleDay = Float(dayOfTheYearDifference % Faction.cycleDuration) + (Float(serverHourOfTheDay) + Float(serverMinuteOfTheHour / 60)) / 24
+let factionWarfrontStatus = [
+  jsonObject(forFaction: Faction.alliance, andFactionCycleDay: factionCycleDay),
+  jsonObject(forFaction: Faction.horde, andFactionCycleDay: factionCycleDay)
+]
+do {
+  let jsonData = try JSONSerialization.data(withJSONObject: factionWarfrontStatus, options: .prettyPrinted)
+  if let jsonResponse = String(data: jsonData, encoding: .utf8) {
+    print(jsonResponse)
   }
-  print(phaseString)
-} else {
-  print("Phase: Access to world boss")
-}
-print("\n")
-print(Faction.horde)
-print("Warfront Status: \(hordeWarfrontStatus)")
-if let phase = hordeWarfrontStatus.phase {
-  var phaseString = "Phase: \(phase.description)"
-  if let progress = phase.currentProgress {
-    phaseString = "\(phaseString) (\(round(progress * 10000) / 100)%)"
-  }
-  print(phaseString)
-} else {
-  print("Phase: Access to world boss")
+} catch {
+  print("Error: \(error.localizedDescription)")
 }
 
