@@ -115,9 +115,6 @@ enum WarfrontStatus: CustomStringConvertible {
 }
 
 func jsonObject(forFaction faction: Faction, andFactionCycleDay factionCycleDay: Float) -> [String:Any] {
-  var factionData = [
-    "faction": faction.description.lowercased()
-  ] as [String:Any]
   let warfrontStatus = faction.warfrontStatus(forFactionCycleDay: factionCycleDay)
   var warfrontStatusData = [
     "type": warfrontStatus.description.lowercased(),
@@ -129,8 +126,7 @@ func jsonObject(forFaction faction: Faction, andFactionCycleDay factionCycleDay:
       "progress": phase.currentProgress
     ]
   }
-  factionData["warfront_status"] = warfrontStatusData
-  return factionData
+  return warfrontStatusData
 }
 
 // Amount of time before the cycle is passed over to the opposite faction
@@ -140,8 +136,8 @@ let dayOfTheYearDifference = dayOfTheYear - cycleStartDayOfTheYear
 
 let factionCycleDay = Float(dayOfTheYearDifference % Faction.cycleDuration) + (Float(serverHourOfTheDay) + Float(serverMinuteOfTheHour / 60)) / 24
 let factionWarfrontStatus = [
-  jsonObject(forFaction: Faction.alliance, andFactionCycleDay: factionCycleDay),
-  jsonObject(forFaction: Faction.horde, andFactionCycleDay: factionCycleDay)
+  "\(Faction.alliance.description.lowercased())_status": jsonObject(forFaction: Faction.alliance, andFactionCycleDay: factionCycleDay),
+  "\(Faction.horde.description.lowercased())_status": jsonObject(forFaction: Faction.horde, andFactionCycleDay: factionCycleDay)
 ]
 do {
   let jsonData = try JSONSerialization.data(withJSONObject: factionWarfrontStatus, options: .prettyPrinted)
